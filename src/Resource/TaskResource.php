@@ -41,7 +41,9 @@ final class TaskResource
             $items      = json_decode((string) $response->getBody(), true) ?? [];
             $totalPages = (int) ($response->getHeaderLine('X-Pagination-Total-Pages') ?: 1);
 
-            array_push($tasks, ...$items);
+            foreach ($items as $bucket) {
+                array_push($tasks, ...($bucket['tasks'] ?? []));
+            }
 
             $page++;
         } while ($page <= $totalPages);
