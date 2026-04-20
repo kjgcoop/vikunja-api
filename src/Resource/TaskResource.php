@@ -6,7 +6,6 @@ namespace Vikunja\Resource;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Vikunja\DTO\Task;
 use Vikunja\Exception\VikunjaException;
 
 final class TaskResource
@@ -14,9 +13,9 @@ final class TaskResource
     public function __construct(private readonly Client $http) {}
 
     /**
-     * @param  array<string,mixed> $params  Optional query params: page, per_page, s, sort_by,
-     *                                      order_by, filter, filter_timezone, filter_include_nulls
-     * @return Task[]
+     * @param  array<string,mixed> $params  Optional: page, per_page, s, sort_by, order_by,
+     *                                      filter, filter_timezone, filter_include_nulls
+     * @return array<int,array<string,mixed>>
      * @throws VikunjaException
      */
     public function forView(int $projectId, int $viewId, array $params = []): array
@@ -39,13 +38,10 @@ final class TaskResource
                 throw VikunjaException::fromGuzzle($e);
             }
 
-            $body       = (string) $response->getBody();
-            $items      = json_decode($body, true) ?? [];
+            $items      = json_decode((string) $response->getBody(), true) ?? [];
             $totalPages = (int) ($response->getHeaderLine('X-Pagination-Total-Pages') ?: 1);
 
-            foreach ($items as $item) {
-                $tasks[] = Task::fromArray($item);
-            }
+            array_push($tasks, ...$items);
 
             $page++;
         } while ($page <= $totalPages);
