@@ -11,12 +11,14 @@ final class VikunjaClient
 {
     private readonly Client $http;
 
-    public function __construct(Config $config, ?Client $http = null)
+    public function __construct(string $baseUrl, string $apiKey, ?Client $http = null)
     {
         $this->http = $http ?? new Client([
-            'base_uri' => rtrim($config->baseUrl, '/') . '/',
-            'headers'  => [
-                'Authorization' => 'Bearer ' . $config->apiKey,
+            'base_uri'        => rtrim($baseUrl, '/') . '/',
+            'timeout'         => 30,
+            'connect_timeout' => 10,
+            'headers'         => [
+                'Authorization' => 'Bearer ' . $apiKey,
                 'Accept'        => 'application/json',
             ],
         ]);
