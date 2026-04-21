@@ -21,6 +21,7 @@ final class TaskResource
     public function forView(int $projectId, int $viewId, array $params = []): array
     {
         $tasks   = [];
+        $buckets = [];
         $page    = 1;
         $perPage = (int) ($params['per_page'] ?? 50);
 
@@ -42,12 +43,12 @@ final class TaskResource
             $totalPages = (int) ($response->getHeaderLine('X-Pagination-Total-Pages') ?: 1);
 
             foreach ($items as $bucket) {
-                array_push($tasks, ...($bucket['tasks'] ?? []));
+                $buckets[] = $bucket;
             }
 
             $page++;
         } while ($page <= $totalPages);
 
-        return $tasks;
+        return $buckets;
     }
 }
