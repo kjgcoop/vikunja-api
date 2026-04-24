@@ -1,14 +1,11 @@
 # vikunja-api
 Vibe-coded library to hit a Vikunja instance; currently only supports `/projects/{id}/views/{view}/tasks`
 
-## This is pre-1.0 and is very broken; don't even bother.
-
-Example CLI script
+Example CLI script that I generated with my brain and haven't run so it may be flawed. Hopefully you get the gist:
 ```
 require_once "vendor/autoload.php";
 
-use Vikunja\VikunjaClient;
-use Vikunja\Config;
+use Kjgcoop\Vikunja\VikunjaClient;
 
 if (!isset($argv[1]) || $argv[1] == '' || !isset($argv[2]) || $argv[2] == '') {
     die('Usage: '.$argv[0].' [project ID] [view ID]'.PHP_EOL);
@@ -17,11 +14,10 @@ if (!isset($argv[1]) || $argv[1] == '' || !isset($argv[2]) || $argv[2] == '') {
     $viewId = $argv[2];
 }
 
-$vkConfig = new Config($vikunjaEndpoint, $vikunjaKey);
-$client = new VikunjaClient($vkConfig);
+$client = new VikunjaClient($config['vikunja_endpoint'], $config['vikunja_key']);
 
-$tasks = $client->tasks()->forView($projectId, $viewId);
+$buckets = $client->tasks()->forView($projectId, $viewId);
 
-print_r($tasks);
-
+print_r($buckets); 
+```
 
