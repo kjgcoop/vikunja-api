@@ -39,7 +39,7 @@ final class TaskResource
                 throw VikunjaException::fromGuzzle($e);
             }
 
-            $items      = json_decode((string) $response->getBody(), true) ?? [];
+            $items      = json_decode((string) $response->getBody()) ?? [];
             $totalPages = (int) ($response->getHeaderLine('X-Pagination-Total-Pages') ?: 1);
 
             foreach ($items as $bucket) {
