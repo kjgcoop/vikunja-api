@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Vikunja\Exception;
+namespace Kjgcoop\Vikunja\Exception;
 
 use GuzzleHttp\Exception\GuzzleException;
 

@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace Vikunja\Tests\Unit;
+namespace Kjgcoop\Vikunja\Tests\Unit;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
-use Vikunja\Exception\VikunjaException;
-use Vikunja\VikunjaClient;
+use Kjgcoop\Vikunja\Exception\VikunjaException;
+use Kjgcoop\Vikunja\VikunjaClient;
 
 final class TaskResourceTest extends TestCase
 {

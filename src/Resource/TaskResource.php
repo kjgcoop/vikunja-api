@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Vikunja\Resource;
+namespace Kjgcoop\Vikunja\Resource;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use Vikunja\Exception\VikunjaException;
+use Kjgcoop\Vikunja\Exception\VikunjaException;
 
 final class TaskResource
 {

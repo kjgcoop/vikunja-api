@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Vikunja;
+namespace Kjgcoop\Vikunja;
 
 use GuzzleHttp\Client;
-use Vikunja\Resource\TaskResource;
+use Kjgcoop\Vikunja\Resource\TaskResource;
 
 final class VikunjaClient
 {
