@@ -51,11 +51,11 @@ final class TaskResourceTest extends TestCase
         ];
     }
 
-    public function testFlattensBucketsIntoTaskList(): void
+    public function testReturnsBucketsWithTheirTasks(): void
     {
         $body = json_encode([
-            $this->bucketFixture(1, []),                                                // empty bucket
-            $this->bucketFixture(2, [$this->taskFixture(101, 2)]),                      // one task
+            $this->bucketFixture(1, []),                                                       // empty bucket
+            $this->bucketFixture(2, [$this->taskFixture(101, 2)]),                             // one task
             $this->bucketFixture(3, [$this->taskFixture(102, 3), $this->taskFixture(103, 3)]), // two tasks
         ]);
 
@@ -63,15 +63,16 @@ final class TaskResourceTest extends TestCase
             new Response(200, ['X-Pagination-Total-Pages' => '1'], $body),
         ]);
 
-        $tasks = $client->tasks()->forView(5, 468);
+        $buckets = $client->tasks()->forView(5, 468);
 
-        $this->assertCount(3, $tasks);
-        $this->assertSame(101, $tasks[0]['id']);
-        $this->assertSame(102, $tasks[1]['id']);
-        $this->assertSame(103, $tasks[2]['id']);
+        $this->assertCount(3, $buckets);
+        $this->assertSame([], $buckets[0]->tasks);
+        $this->assertSame(101, $buckets[1]->tasks[0]->id);
+        $this->assertSame(102, $buckets[2]->tasks[0]->id);
+        $this->assertSame(103, $buckets[2]->tasks[1]->id);
     }
 
-    public function testEmptyBucketsReturnEmptyArray(): void
+    public function testEmptyBucketsStayEmpty(): void
     {
         $body = json_encode([
             $this->bucketFixture(1, []),
@@ -82,25 +83,30 @@ final class TaskResourceTest extends TestCase
             new Response(200, ['X-Pagination-Total-Pages' => '1'], $body),
         ]);
 
-        $this->assertSame([], $client->tasks()->forView(5, 468));
+        $buckets = $client->tasks()->forView(5, 468);
+
+        $this->assertCount(2, $buckets);
+        $this->assertSame([], $buckets[0]->tasks);
     }
 
-    public function testAutoPaginatesAcrossMultiplePages(): void
+    public function testPaginationMergesTasksIntoTheSameBucket(): void
     {
         $client = $this->makeClient([
             new Response(200, ['X-Pagination-Total-Pages' => '2'], json_encode([
                 $this->bucketFixture(1, [$this->taskFixture(1, 1)]),
+                $this->bucketFixture(2, [$this->taskFixture(2, 2)]),
             ])),
             new Response(200, ['X-Pagination-Total-Pages' => '2'], json_encode([
-                $this->bucketFixture(2, [$this->taskFixture(2, 2)]),
+                $this->bucketFixture(1, [$this->taskFixture(3, 1)]),
+                $this->bucketFixture(2, []),
             ])),
         ]);
 
-        $tasks = $client->tasks()->forView(5, 468);
+        $buckets = $client->tasks()->forView(5, 468);
 
-        $this->assertCount(2, $tasks);
-        $this->assertSame(1, $tasks[0]['id']);
-        $this->assertSame(2, $tasks[1]['id']);
+        $this->assertCount(2, $buckets);
+        $this->assertSame([1, 3], array_map(fn ($t) => $t->id, $buckets[0]->tasks));
+        $this->assertSame([2], array_map(fn ($t) => $t->id, $buckets[1]->tasks));
     }
 
     public function testHttpErrorThrowsVikunjaException(): void

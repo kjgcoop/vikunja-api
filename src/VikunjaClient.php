@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Kjgcoop\Vikunja;
 
 use GuzzleHttp\Client;
+use Kjgcoop\Vikunja\Resource\AttachmentResource;
+use Kjgcoop\Vikunja\Resource\ProjectResource;
 use Kjgcoop\Vikunja\Resource\TaskResource;
 
 final class VikunjaClient
@@ -27,5 +29,15 @@ final class VikunjaClient
     public function tasks(): TaskResource
     {
         return new TaskResource($this->http);
+    }
+
+    public function projects(): ProjectResource
+    {
+        return new ProjectResource($this->http);
+    }
+
+    public function attachments(): AttachmentResource
+    {
+        return new AttachmentResource($this->http);
     }
 }

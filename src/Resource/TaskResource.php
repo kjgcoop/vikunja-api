@@ -15,12 +15,11 @@ final class TaskResource
     /**
      * @param  array<string,mixed> $params  Optional: page, per_page, s, sort_by, order_by,
      *                                      filter, filter_timezone, filter_include_nulls
-     * @return array<int,array<string,mixed>>
+     * @return array<int,\stdClass>  For kanban views, one object per bucket, each with a `tasks` array
      * @throws VikunjaException
      */
     public function forView(int $projectId, int $viewId, array $params = []): array
     {
-        $tasks   = [];
         $buckets = [];
         $page    = 1;
         $perPage = (int) ($params['per_page'] ?? 50);
@@ -42,13 +41,21 @@ final class TaskResource
             $items      = json_decode((string) $response->getBody()) ?? [];
             $totalPages = (int) ($response->getHeaderLine('X-Pagination-Total-Pages') ?: 1);
 
+            // On kanban views, pagination applies to the tasks inside each bucket, so the same
+            // buckets come back on every page. Merge by bucket ID instead of appending.
             foreach ($items as $bucket) {
-                $buckets[] = $bucket;
+                if (!isset($buckets[$bucket->id])) {
+                    $buckets[$bucket->id] = $bucket;
+                    $buckets[$bucket->id]->tasks ??= [];
+                    continue;
+                }
+
+                array_push($buckets[$bucket->id]->tasks, ...($bucket->tasks ?? []));
             }
 
             $page++;
         } while ($page <= $totalPages);
 
-        return $buckets;
+        return array_values($buckets);
     }
 }
