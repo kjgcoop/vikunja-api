@@ -45,7 +45,9 @@ final class TaskResource
             // buckets come back on every page. Merge by bucket ID instead of appending.
             foreach ($items as $bucket) {
                 // Non-kanban views return flat tasks rather than buckets; leave those as they were.
-                if (!property_exists($bucket, 'tasks')) {
+                // Can't key this off `tasks` -- an empty bucket omits that field entirely rather
+                // than returning `tasks: []`, so check a field that's actually bucket-specific.
+                if (!property_exists($bucket, 'project_view_id')) {
                     $buckets[] = $bucket;
                     continue;
                 }

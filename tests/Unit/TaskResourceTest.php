@@ -109,6 +109,32 @@ final class TaskResourceTest extends TestCase
         $this->assertSame([2], array_map(fn ($t) => $t->id, $buckets[1]->tasks));
     }
 
+    public function testEmptyBucketWithOmittedTasksFieldStillDefaultsToEmptyArray(): void
+    {
+        // Real Vikunja responses omit `tasks` entirely for an empty bucket rather than
+        // returning `tasks: []` -- this bucket fixture has no `tasks` key at all, unlike
+        // bucketFixture()'s explicit `'tasks' => []`.
+        $bucketWithNoTasksKey = [
+            'id'              => 9,
+            'title'           => 'Bucket 9',
+            'project_view_id' => 468,
+            'limit'           => 0,
+            'count'           => 0,
+            'position'        => 900,
+            'created'         => '2026-03-01T10:00:00Z',
+            'updated'         => '2026-03-01T10:00:00Z',
+        ];
+
+        $client = $this->makeClient([
+            new Response(200, ['X-Pagination-Total-Pages' => '1'], json_encode([$bucketWithNoTasksKey])),
+        ]);
+
+        $buckets = $client->tasks()->forView(5, 468);
+
+        $this->assertCount(1, $buckets);
+        $this->assertSame([], $buckets[0]->tasks);
+    }
+
     public function testFlatTaskListsPassThroughUnchanged(): void
     {
         $client = $this->makeClient([
