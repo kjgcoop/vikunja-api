@@ -109,6 +109,19 @@ final class TaskResourceTest extends TestCase
         $this->assertSame([2], array_map(fn ($t) => $t->id, $buckets[1]->tasks));
     }
 
+    public function testFlatTaskListsPassThroughUnchanged(): void
+    {
+        $client = $this->makeClient([
+            new Response(200, ['X-Pagination-Total-Pages' => '2'], json_encode([$this->taskFixture(1), $this->taskFixture(2)])),
+            new Response(200, ['X-Pagination-Total-Pages' => '2'], json_encode([$this->taskFixture(3)])),
+        ]);
+
+        $tasks = $client->tasks()->forView(5, 1);
+
+        $this->assertSame([1, 2, 3], array_map(fn ($t) => $t->id, $tasks));
+        $this->assertFalse(property_exists($tasks[0], 'tasks'));
+    }
+
     public function testHttpErrorThrowsVikunjaException(): void
     {
         $client = $this->makeClient([

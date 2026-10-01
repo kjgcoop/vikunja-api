@@ -44,13 +44,20 @@ final class TaskResource
             // On kanban views, pagination applies to the tasks inside each bucket, so the same
             // buckets come back on every page. Merge by bucket ID instead of appending.
             foreach ($items as $bucket) {
-                if (!isset($buckets[$bucket->id])) {
-                    $buckets[$bucket->id] = $bucket;
-                    $buckets[$bucket->id]->tasks ??= [];
+                // Non-kanban views return flat tasks rather than buckets; leave those as they were.
+                if (!property_exists($bucket, 'tasks')) {
+                    $buckets[] = $bucket;
                     continue;
                 }
 
-                array_push($buckets[$bucket->id]->tasks, ...($bucket->tasks ?? []));
+                $bucket->tasks ??= [];
+
+                if (!isset($buckets[$bucket->id])) {
+                    $buckets[$bucket->id] = $bucket;
+                    continue;
+                }
+
+                array_push($buckets[$bucket->id]->tasks, ...$bucket->tasks);
             }
 
             $page++;
