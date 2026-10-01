@@ -57,7 +57,9 @@ final class TaskResource
                     continue;
                 }
 
-                array_push($buckets[$bucket->id]->tasks, ...$bucket->tasks);
+                if (isset($buckets[$bucket->id]->tasks)) {
+                    array_push($buckets[$bucket->id]->tasks, ...$bucket->tasks);
+                }
             }
 
             $page++;
